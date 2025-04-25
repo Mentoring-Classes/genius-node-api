@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 interface IUser extends Document {
+  userName:string;
   email: string;
   password: string;
   rankPoints: number;
@@ -9,6 +10,7 @@ interface IUser extends Document {
 }
 
 const UserSchema = new Schema<IUser>({
+  userName: { type: String, required: true},
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   rankPoints: { type: Number, default: 0 },

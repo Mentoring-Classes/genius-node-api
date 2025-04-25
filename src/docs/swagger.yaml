@@ -1,0 +1,530 @@
+openapi: 3.0.0
+info:
+  title: Genius Memory Game API
+  description: Documentação das rotas do Genius Memory Game
+  version: 1.0.0
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 60b8d295f1e7c80015b45a3c
+        userName:
+          type: string
+          example: Eduardo
+        email:
+          type: string
+          example: Edu@gmail.com
+        bestScore:
+          type: number
+          example: 0
+        rankPoints:
+          type: number
+          example: 0
+        rank:
+          type: string
+          example: 67d465556623585054c0fb8b
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-04-13T03:49:41.996Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-04-13T03:49:41.996Z
+  securitySchemes: 
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /user/register:
+    post:
+      summary: Registra um novo usuário
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                userName:
+                  example: Eduardo
+                email:
+                  example: Edu@gmail.com
+                password:
+                  exampe: senhaDoEdu
+                  
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/User'
+
+  /user/login:
+      post:
+        summary: Faz Login do usuário
+        tags: [Users]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                properties:
+                  email:
+                    example: Edu@gmail.com
+                  password:
+                    exampe: senhaDoEdu
+        responses:
+          '201':
+            description: Login realizado com sucesso
+            content:
+              application/json:
+                schema:
+                  properties:
+                    userName:
+                      example: Login feito com sucesso
+                    token:
+                      example: LWDgMOa9SOOJ92haojf3A123W4OvsDap10vjbn20cm18
+          '422':
+            description: Senha ou email inválido
+            content:
+              application/json:
+                schema:
+                  properties:
+                    msg:
+                      example: Invalid email or password
+
+  /user/{id}:
+    get:
+      summary: Pega os dados do usuário
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+          
+      responses:
+        '200':
+          description: Usuário retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+        '500':
+          description: Erro no servidor
+
+    delete:
+      summary: Deleta um usuário
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+             
+      responses:
+        '200':
+          description: Usuário retornado com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: User deleted successfully
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: User not found
+    patch:
+      summary: Atualiza os dados do usuário
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                userName:
+                  example: Novo Eduardo
+                email:
+                  example: NovoEmailDoEdu@gmail.com
+             
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  userName:
+                    example: Novo Eduardo
+                  email:
+                    example: NovoEmailDoEdu@gmail.com
+        '404':
+          description: Usuário não encontrado
+        '500':
+          description: Erro no servidor
+
+  /verify-token:
+    get:
+      summary: Verifica o token do usuário
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token verificado com sucesso
+          content:
+            application/json:
+              example:
+                valid: true
+                user:
+                  id: oev91bc9bmhs810f0za1b
+                  userName: Eduardo
+                  iat: 1744302058
+        '401':
+          description: Token inválido
+          content:
+            application/json:
+              examples:
+                invalid_token:
+                  summary: Se o token for inválido
+                  value:
+                    msg: Token inválido
+                tokenNãoFornecido:
+                  summary: Se o token não for fornecido
+                  value:
+                    msg: Acesso negado token não fornecido
+                
+  /coopRoom/create:
+    post:
+      summary: Cria uma nova sala cooperativa
+      tags: [CoopRoom]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                roomName:
+                  example: sala111222
+      responses:
+        '200':
+          description: Sala criada com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  _id:
+                    example: 01d23abc4vf5ad6def78a9ghi012jadkl
+                  roomName:
+                    example: sala111222
+                  player1:
+                    example: ola_user_name
+                  player2:
+                    nullable: true
+                    example: null
+        '401':
+          description: Não autorizado – Token inválido
+          content:
+            application/json:
+              schema:
+              
+              examples:
+                invalid_token:
+                  summary: token invalido
+                  value:
+                    msg: Token inválido
+                token_Error:
+                  summary: token não fornecido
+                  value:
+                    msg: Acesso negado token não fornecido.
+        '422':
+          description: Erro de validação – Nome da sala inválido
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Nome da sala inválido
+              examples:
+                nome_ja_existe:
+                  summary: Nome já existe
+                  value:
+                    msg: Room name already exists
+                nome_obrigatorio:
+                  summary: Nome obrigatório
+                  value:
+                    msg: Room name is required
+
+  /coopRoom/{id}:
+    get:
+      summary: Pega os dados de uma sala cooperativa
+      tags: [CoopRoom]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da sala
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Retorna a sala com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  _id:
+                    example: 67faa7ab481b2753c7593042
+                  roomName:
+                    example: sala111222
+                  player1:
+                    example: ola_user_name
+                  player2:
+                    nullable: true
+                    example: null
+        '401':
+          description: Não autorizado – Token inválido
+          content:
+            application/json:           
+              examples:
+                invalid_token:
+                  summary: token invalido
+                  value:
+                    msg: Token inválido
+  
+  /coopRoom/join:
+    patch:
+      summary: Entra em uma sala cooperativa
+      tags: [CoopRoom]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                roomName:
+                  example: sala111222
+      responses:
+        '200':
+          description: Mostra a sala com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  _id:
+                    example: 01d23abc4vf5ad6def78a9ghi012jadkl
+                  roomName:
+                    example: sala111222
+                  player1:
+                    example: ola_user_name
+                  player2:
+                    nullable: true
+                    example: null
+        '401':
+          description: Erro de validação – Nome da sala inválido
+          content:
+            application/json:
+              examples:
+                invalid_token:
+                  summary: token invalido
+                  value:
+                    msg: Token inválido
+                token_Error:
+                  summary: token não fornecido
+                  value:
+                    msg: Acesso negado token não fornecido.
+        '404':
+          description: Sala não encontrada
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Sala não encontrada
+
+  /rank:
+    post:
+      summary: Cria todos os ranks necessários
+      tags: [Rank]
+      responses:
+        '200':
+          description: Ranks Criados com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Ranks created successfully
+        '500':
+          description: Erro no servidor
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Rank Bronze already exists
+  /rank/{id}:
+    get:
+      summary: Retorna um rank pelo ID
+      tags: [Rank]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do rank
+      responses:
+        '200':
+          description: Rank retornado com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  _id:
+                    example: 02jf02jjd17vblaov91hxb1zmbvd
+                  rank:
+                    example: Silver
+                  requiredPoints:
+                    example: 600
+                  nextRank:
+                    example: Gold
+        '404':
+          description: Rank não encontrado
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Rank not found
+    delete:
+      summary: Retorna um rank pelo ID
+      tags: [Rank]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do rank
+      responses:
+        '200':
+          description: Rank retornado com sucesso
+          content:
+            application/json:
+              example:
+                msg: Rank deleted successfully
+        '404':
+          description: Cannot DELETE /rank/
+    patch:
+      summary: Atualiza um rank pelo ID
+      tags: [Rank]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+          description: ID do rank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                rank:
+                  example: Gold
+                requiredPoints:
+                  example: 2000
+      responses:
+        '200':
+          description: Rank atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  _id:
+                    example: 02jf02jjd17vblaov91hxb1zmbvd
+                  rank:
+                    example: Gold
+                  requiredPoints:
+                    example: 2000
+                  nextRank:
+                    example: Platinum
+        '404':
+          description: Rank não encontrado
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Rank not found
+  /user/:id/rank:
+    patch:
+      summary: Atualiza o rankPoints do usuário pelo ID
+      tags: [Rank, Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+          description: ID do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                rankPoints:
+                  example: 100
+      responses:
+        '200':
+          description: Rank retornado com sucesso
+          content:
+            application/json:
+              example:
+                msg: Rank updated successfully
+        '404':
+          description: Rank não encontrado
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Rank not found
+        '500':
+          content:
+            application/json:
+              examples:
+                RankPoints_erro:
+                  summary: Se tentar colocar um rankPoints maior que o permitido
+                  value:
+                    msg: Error fetching rank
+                UserInvalid:
+                  summary: Se o usuário não existir
+                  value:
+                    msg: Error updating rank.

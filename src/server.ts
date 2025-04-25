@@ -5,6 +5,7 @@ import routes from "./routes";
 import loggerMiddleware from "./middlewares/logger";
 import logger from "./utils/logger";
 import cors from "cors";
+import setupSwagger from './utils/swagger';
 
 dotenv.config();
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(loggerMiddleware);
+setupSwagger(app);
 app.use(routes);
 
 const PORT = process.env.PORT || 3000;
